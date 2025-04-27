@@ -1,7 +1,9 @@
+use std::time::Duration;
+
 use criterion::{BenchmarkId, Criterion, black_box, criterion_group, criterion_main};
 
 extern crate quick_sort;
-use quick_sort::{quick_sort_v2, quick_sort_v3, quick_sort_v4};
+use quick_sort::{quick_sort_v2, quick_sort_v3, quick_sort_v4, quick_sort_v5, quick_sort_v6};
 use rand::Rng;
 
 pub fn criterion_benchmark(c: &mut Criterion) {
@@ -10,15 +12,22 @@ pub fn criterion_benchmark(c: &mut Criterion) {
     for sorted in vec![
         quick_sort_v2(unsorted.clone()),
         quick_sort_v3(unsorted.clone()),
+        quick_sort_v4(unsorted.clone()),
     ] {
         assert!(sorted == expected);
     }
+    let mut clone = unsorted.clone();
+    quick_sort_v5(&mut clone);
+    assert!(clone == expected);
+    let mut clone = unsorted.clone();
+    quick_sort_v6(&mut clone);
+    assert!(clone == expected);
 
     let mut group = c.benchmark_group("quick_sort");
-    // group
-    //     .warm_up_time(Duration::new(5, 0))
-    //     .measurement_time(Duration::new(10, 0))
-    //     .sample_size(100_000);
+    group
+        .warm_up_time(Duration::new(10, 0))
+        // .measurement_time(Duration::new(10, 0))
+        .sample_size(1_000);
 
     let mut rng = rand::rng();
 
@@ -41,6 +50,16 @@ pub fn criterion_benchmark(c: &mut Criterion) {
 
         let id = BenchmarkId::new("quick_sort_v4", &row.len());
         group.bench_function(id, |b| b.iter(|| quick_sort_v4(black_box(row.clone()))));
+
+        let id = BenchmarkId::new("quick_sort_v5", &row.len());
+        group.bench_function(id, |b| {
+            b.iter(|| quick_sort_v5(black_box(&mut row.clone())))
+        });
+
+        let id = BenchmarkId::new("quick_sort_v6", &row.len());
+        group.bench_function(id, |b| {
+            b.iter(|| quick_sort_v6(black_box(&mut row.clone())))
+        });
     }
 
     group.finish();

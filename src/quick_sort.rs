@@ -1,3 +1,100 @@
+#[inline(always)]
+pub fn quick_sort_v6<T>(mut vec: &mut Vec<T>)
+where
+    T: PartialOrd + Clone + Copy + std::fmt::Debug,
+{
+    #[inline(always)]
+    fn partition<T>(vec: &mut Vec<T>, first: isize, last: isize) -> isize
+    where
+        T: PartialOrd + Clone + Copy + std::fmt::Debug,
+    {
+        let mut li = first - 1;
+        let mut ri = last + 1;
+
+        // PIVOT CANNOT BE LAST
+        let pivot = vec[first as usize];
+
+        loop {
+            li += 1;
+            while vec[li as usize] < pivot {
+                li += 1
+            }
+            ri -= 1;
+            while vec[ri as usize] > pivot {
+                ri -= 1
+            }
+            if li >= ri {
+                return ri;
+            }
+            vec.swap(li as usize, ri as usize);
+        }
+    }
+
+    #[inline(always)]
+    fn sort<T>(mut vec: &mut Vec<T>, first: isize, last: isize) -> &mut Vec<T>
+    where
+        T: PartialOrd + Clone + Copy + std::fmt::Debug,
+    {
+        if first < last {
+            let the_divide = partition(&mut vec, first, last);
+            sort(&mut vec, first, the_divide);
+            sort(&mut vec, the_divide + 1, last as isize);
+        }
+        return vec;
+    }
+
+    let last = vec.len() - 1;
+    sort(&mut vec, 0, last as isize);
+}
+
+// Removing to_vec at the end and simply mutating should avoid copying at the end
+
+pub fn quick_sort_v5<T>(mut vec: &mut Vec<T>)
+where
+    T: PartialOrd + Clone + Copy + std::fmt::Debug,
+{
+    fn partition<T>(vec: &mut Vec<T>, first: isize, last: isize) -> isize
+    where
+        T: PartialOrd + Clone + Copy + std::fmt::Debug,
+    {
+        let mut li = first - 1;
+        let mut ri = last + 1;
+
+        // PIVOT CANNOT BE LAST
+        let pivot = vec[first as usize];
+
+        loop {
+            li += 1;
+            while vec[li as usize] < pivot {
+                li += 1
+            }
+            ri -= 1;
+            while vec[ri as usize] > pivot {
+                ri -= 1
+            }
+            if li >= ri {
+                return ri;
+            }
+            vec.swap(li as usize, ri as usize);
+        }
+    }
+
+    fn sort<T>(mut vec: &mut Vec<T>, first: isize, last: isize) -> &mut Vec<T>
+    where
+        T: PartialOrd + Clone + Copy + std::fmt::Debug,
+    {
+        if first < last {
+            let the_divide = partition(&mut vec, first, last);
+            sort(&mut vec, first, the_divide);
+            sort(&mut vec, the_divide + 1, last as isize);
+        }
+        return vec;
+    }
+
+    let last = vec.len() - 1;
+    sort(&mut vec, 0, last as isize);
+}
+
 // Now it would be interesting to test different pivots
 
 pub fn quick_sort_v4<T>(mut vec: Vec<T>) -> Vec<T>
